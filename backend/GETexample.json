@@ -1,0 +1,115 @@
+{
+    "items": [
+        {
+            "ticker": "CECO",
+            "target_from": "$44.00",
+            "target_to": "$52.00",
+            "company": "CECO Environmental",
+            "action": "target raised by",
+            "brokerage": "Needham & Company LLC",
+            "rating_from": "Buy",
+            "rating_to": "Buy",
+            "time": "2025-08-22T00:30:05.141533767Z"
+        },
+        {
+            "ticker": "BLND",
+            "target_from": "$5.25",
+            "target_to": "$5.25",
+            "company": "Blend Labs",
+            "action": "reiterated by",
+            "brokerage": "Canaccord Genuity Group",
+            "rating_from": "Buy",
+            "rating_to": "Buy",
+            "time": "2025-08-25T00:30:04.718800464Z"
+        },
+        {
+            "ticker": "FLOC",
+            "target_from": "$28.00",
+            "target_to": "$26.00",
+            "company": "Flowco",
+            "action": "target lowered by",
+            "brokerage": "Evercore ISI",
+            "rating_from": "Outperform",
+            "rating_to": "Outperform",
+            "time": "2025-08-07T00:30:07.831137642Z"
+        },
+        {
+            "ticker": "VYGR",
+            "target_from": "$30.00",
+            "target_to": "$30.00",
+            "company": "Voyager Therapeutics",
+            "action": "reiterated by",
+            "brokerage": "",
+            "rating_from": "Buy",
+            "rating_to": "Buy",
+            "time": "2025-09-16T00:30:09.573700542Z"
+        },
+        {
+            "ticker": "BCBP",
+            "target_from": "$9.00",
+            "target_to": "$9.50",
+            "company": "BCB Bancorp, Inc. (NJ)",
+            "action": "target raised by",
+            "brokerage": "Piper Sandler",
+            "rating_from": "Neutral",
+            "rating_to": "Neutral",
+            "time": "2025-07-31T00:30:08.486465436Z"
+        },
+        {
+            "ticker": "DEFT",
+            "target_from": "$5.50",
+            "target_to": "$5.50",
+            "company": "DeFi Technologies",
+            "action": "reiterated by",
+            "brokerage": "",
+            "rating_from": "Buy",
+            "rating_to": "Buy",
+            "time": "2025-09-28T00:30:11.526169505Z"
+        },
+        {
+            "ticker": "LAMR",
+            "target_from": "$122.00",
+            "target_to": "$119.00",
+            "company": "Lamar Advertising",
+            "action": "target lowered by",
+            "brokerage": "Wells Fargo & Company",
+            "rating_from": "Equal Weight",
+            "rating_to": "Equal Weight",
+            "time": "2025-08-12T00:30:05.706215823Z"
+        },
+        {
+            "ticker": "TRIN",
+            "target_from": "$13.00",
+            "target_to": "$13.50",
+            "company": "Trinity Capital",
+            "action": "reiterated by",
+            "brokerage": "Wells Fargo & Company",
+            "rating_from": "Underweight",
+            "rating_to": "Underweight",
+            "time": "2025-08-13T00:30:07.200384325Z"
+        },
+        {
+            "ticker": "AMP",
+            "target_from": "$525.00",
+            "target_to": "$525.00",
+            "company": "Ameriprise Financial",
+            "action": "initiated by",
+            "brokerage": "",
+            "rating_from": "Market Perform",
+            "rating_to": "Market Perform",
+            "time": "2025-10-06T00:30:13.467939088Z"
+        },
+        {
+            "ticker": "RY",
+            "target_from": "$140.00",
+            "target_to": "$162.00",
+            "company": "Royal Bank Of Canada",
+            "action": "target raised by",
+            "brokerage": "Argus",
+            "rating_from": "Buy",
+            "rating_to": "Buy",
+            "time": "2025-08-31T00:30:05.152767618Z"
+        }
+    ],
+    "next_page": "RY"
+}

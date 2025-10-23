@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:latest
+    container_name: stock-analyzer-cockroachdb
+    command: start-single-node --insecure --store=type=mem,size=2GB
+    ports:
+      - "26257:26257"  # CockroachDB SQL port
+      - "8080:8080"    # CockroachDB Admin UI
+    environment:
+      - COCKROACH_DATABASE=stocks
+      - COCKROACH_USER=root
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stock-analyzer-network
+
+  # Opcional: pgAdmin para administrar la base de datos visualmente
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: stock-analyzer-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@stock-analyzer.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - cockroachdb
+    networks:
+      - stock-analyzer-network
+
+volumes:
+  cockroach-data:
+    driver: local
+
+networks:
+  stock-analyzer-network:
+    driver: bridge
