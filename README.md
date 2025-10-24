@@ -64,10 +64,9 @@ cd backend
 go mod download
 ```
 
-Create a `.env` file with your configuration:
+Create a `.env` file with your configuration (do not include secrets in Git):
 ```env
-DATABASE_URL=postgresql://user@host:port/database
-API_KEY=your_api_key_here
+DATABASE_URL=postgresql://<user>@<host>:<port>/<database>
 PORT=8080
 ```
 
@@ -83,10 +82,7 @@ cd frontend
 npm install
 ```
 
-Create a `.env` file:
-```env
-VITE_API_URL=http://localhost:8080
-```
+Optionally, create a `.env` file for the frontend to point to your backend base URL (no defaults are included here to avoid leaking local endpoints).
 
 Run the development server:
 ```bash
@@ -100,6 +96,22 @@ Initialize CockroachDB and run migrations:
 cd backend
 go run cmd/migrate/main.go
 ```
+
+Optional: start CockroachDB locally with Docker (Windows PowerShell):
+
+If you prefer running CockroachDB via Docker, this repo includes helper scripts under `scripts/`:
+
+```powershell
+# From the repository root (PowerShell)
+./scripts/start-services.ps1   # Start CockroachDB
+./scripts/init-db.ps1          # Create the 'stocks' database
+
+# View logs or stop services when needed
+./scripts/view-logs.ps1
+./scripts/stop-services.ps1
+```
+
+CockroachDB Admin UI: http://localhost:8080
 
 ## 🧪 Running Tests
 
@@ -155,18 +167,12 @@ stock-analyzer-platform/
 - **Detail View**: Comprehensive information about each stock
 - **Recommendations**: AI-powered investment suggestions
 
-## 📊 API Endpoints
+## Security & Privacy
 
-```
-GET  /api/stocks          - List all stocks (with pagination)
-GET  /api/stocks/:id      - Get stock details
-GET  /api/recommendations - Get recommended stocks
-POST /api/sync            - Sync data from external API
-```
+- This repository intentionally omits provider endpoints and API keys
+- Configure any credentials locally via environment variables
+- Keep .env files out of version control
 
-## 🤝 Contributing
-
-This is a technical assessment project. Contributions are welcome for learning purposes.
 
 ## 📄 License
 

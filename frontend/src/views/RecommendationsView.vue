@@ -36,7 +36,7 @@
         <h2 class="text-xl font-semibold text-gray-900 mb-4">🏆 Top 3 Picks</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <RecommendationCard
-            v-for="(rec, index) in topThree"
+            v-for="rec in topThree"
             :key="rec.stock.id"
             :recommendation="rec"
           />
@@ -101,10 +101,10 @@ const formatDate = (dateString: string) => {
 }
 
 const refreshRecommendations = () => {
-  stockStore.fetchRecommendations(10)
+  stockStore.fetchRecommendations(12)
 }
 
 onMounted(() => {
-  stockStore.fetchRecommendations(10)
+  stockStore.fetchRecommendations(12)
 })
 </script>

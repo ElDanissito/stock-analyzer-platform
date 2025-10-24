@@ -24,7 +24,6 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "Servicios iniciados correctamente!" -ForegroundColor Green
     Write-Host ""
     Write-Host "CockroachDB Admin UI: http://localhost:8080" -ForegroundColor Cyan
-    Write-Host "pgAdmin: http://localhost:5050" -ForegroundColor Cyan
     Write-Host "Database URL: postgresql://root@localhost:26257/stocks?sslmode=disable" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Esperando 5 segundos para que los servicios esten listos..." -ForegroundColor Yellow

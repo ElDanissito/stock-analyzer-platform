@@ -20,6 +20,4 @@ Write-Host ""
 Write-Host "Puedes acceder al Admin UI en: http://localhost:8080" -ForegroundColor Yellow
 Write-Host "Connection string: postgresql://root@localhost:26257/stocks?sslmode=disable" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Tip: Tambien puedes usar pgAdmin en http://localhost:5050" -ForegroundColor Magenta
-Write-Host "   Email: admin@stock-analyzer.com" -ForegroundColor Magenta
-Write-Host "   Password: admin" -ForegroundColor Magenta
+Write-Host "Tip: Usa el CockroachDB Admin UI en http://localhost:8080 para monitoreo" -ForegroundColor Magenta

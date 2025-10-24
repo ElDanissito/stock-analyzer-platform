@@ -25,19 +25,37 @@ func (s *RecommendationService) GetRecommendations(limit int) ([]models.StockRec
 		return nil, err
 	}
 
-	var recommendations []models.StockRecommendation
-
+	// Group by ticker and keep only the most recent
+	tickerMap := make(map[string]models.Stock)
 	for _, stock := range stocks {
-		score, reason := s.calculateScore(&stock)
-		recommendations = append(recommendations, models.StockRecommendation{
-			Stock:  &stock,
-			Score:  score,
-			Reason: reason,
-		})
+		existing, exists := tickerMap[stock.Ticker]
+		if !exists || stock.Time.After(existing.Time) {
+			tickerMap[stock.Ticker] = stock
+		}
+	}
+
+	// Calculate scores for unique tickers
+	var recommendations []models.StockRecommendation
+	for _, stock := range tickerMap {
+		// IMPORTANT: copy loop variable before taking address to avoid pointer aliasing
+		stockCopy := stock
+		score, reason := s.calculateScore(&stockCopy)
+		// Only include stocks with meaningful scores
+		if score > 0 {
+			recommendations = append(recommendations, models.StockRecommendation{
+				Stock:  &stockCopy,
+				Score:  score,
+				Reason: reason,
+			})
+		}
 	}
 
 	// Sort by score descending
 	sort.Slice(recommendations, func(i, j int) bool {
+		if recommendations[i].Score == recommendations[j].Score {
+			// Secondary sort by ticker for stable ordering
+			return recommendations[i].Stock.Ticker < recommendations[j].Stock.Ticker
+		}
 		return recommendations[i].Score > recommendations[j].Score
 	})
 
@@ -56,10 +74,13 @@ func (s *RecommendationService) calculateScore(stock *models.Stock) (float64, st
 	// Extract price change from target_from and target_to
 	targetFrom := s.parsePrice(stock.TargetFrom)
 	targetTo := s.parsePrice(stock.TargetTo)
+	var changePerc float64
+	if targetFrom > 0 {
+		changePerc = ((targetTo - targetFrom) / targetFrom) * 100
+	}
 
 	// Factor 1: Target price increase (weight: 40%)
-	if targetTo > targetFrom && targetFrom > 0 {
-		changePerc := ((targetTo - targetFrom) / targetFrom) * 100
+	if changePerc > 0 {
 		score += math.Min(changePerc*4, 40)
 		reasons = append(reasons, "target price increased")
 	}
@@ -67,10 +88,12 @@ func (s *RecommendationService) calculateScore(stock *models.Stock) (float64, st
 	// Factor 2: Rating improvement (weight: 30%)
 	ratingScore := s.getRatingScore(stock.RatingFrom, stock.RatingTo)
 	score += ratingScore
-	if ratingScore > 15 {
+	if ratingScore >= 30 {
 		reasons = append(reasons, "rating upgraded")
-	} else if ratingScore > 0 {
-		reasons = append(reasons, "positive rating")
+	} else if ratingScore >= 20 {
+		reasons = append(reasons, "strong rating initiated")
+	} else if ratingScore >= 10 {
+		reasons = append(reasons, "positive rating maintained")
 	}
 
 	// Factor 3: Action type (weight: 20%)
@@ -80,10 +103,15 @@ func (s *RecommendationService) calculateScore(stock *models.Stock) (float64, st
 		reasons = append(reasons, "positive analyst action")
 	}
 
-	// Factor 4: Brokerage reputation (weight: 10%)
-	if s.isTopBrokerage(stock.Brokerage) {
+	// Bonus: Momentum synergy (up to +10)
+	// Reward strong alignment when there is a big target hike and an upgrade action/rating
+	actionLower := strings.ToLower(stock.Action)
+	if changePerc >= 50 && (ratingScore >= 30) && (strings.Contains(actionLower, "upgraded") || strings.Contains(actionLower, "raised")) {
 		score += 10
-		reasons = append(reasons, "top-tier brokerage")
+		reasons = append(reasons, "strong multi-signal momentum")
+	} else if changePerc >= 25 && (ratingScore >= 30 || strings.Contains(actionLower, "upgraded") || strings.Contains(actionLower, "raised")) {
+		score += 5
+		reasons = append(reasons, "strong momentum")
 	}
 
 	// Normalize score to 0-100
@@ -125,12 +153,15 @@ func (s *RecommendationService) getRatingScore(ratingFrom, ratingTo string) floa
 	scoreFrom := ratings[ratingFrom]
 	scoreTo := ratings[ratingTo]
 
+	// Only give points if there was an actual upgrade or strong positive rating
 	if scoreTo > scoreFrom {
 		return 30 // Upgraded
-	} else if scoreTo >= 4 {
-		return 20 // Strong positive rating
-	} else if scoreTo == 3 {
-		return 10 // Neutral rating
+	} else if scoreTo >= 4 && scoreFrom == 0 {
+		// New coverage with strong rating (no previous rating)
+		return 20
+	} else if scoreTo == scoreFrom && scoreTo >= 4 {
+		// Maintained strong rating (reiterated)
+		return 10
 	}
 	return 0
 }
@@ -145,27 +176,4 @@ func (s *RecommendationService) getActionScore(action string) float64 {
 		return 10
 	}
 	return 5
-}
-
-func (s *RecommendationService) isTopBrokerage(brokerage string) bool {
-	topBrokerages := []string{
-		"Goldman Sachs",
-		"Morgan Stanley",
-		"JP Morgan",
-		"Wells Fargo",
-		"Bank of America",
-		"Citigroup",
-		"Barclays",
-		"Credit Suisse",
-		"UBS",
-		"Deutsche Bank",
-	}
-
-	brokerageLower := strings.ToLower(brokerage)
-	for _, top := range topBrokerages {
-		if strings.Contains(brokerageLower, strings.ToLower(top)) {
-			return true
-		}
-	}
-	return false
 }

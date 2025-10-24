@@ -1,6 +1,6 @@
 # Stock Analyzer Platform - Backend
 
-Backend API built with Go for the Stock Analyzer Platform.
+Backend service built with Go for the Stock Analyzer Platform.
 
 ## 🚀 Quick Start
 
@@ -21,14 +21,13 @@ go mod download
 cp .env.example .env
 ```
 
-3. Edit `.env` with your configuration:
+3. Create and edit your `.env` with local credentials (do not commit secrets):
 ```env
-PORT=8080
+# Example keys only – fill with your own values
+PORT=3000
 ENV=development
-DATABASE_URL=postgresql://user:password@localhost:26257/stocks?sslmode=disable
-STOCK_API_URL=https://api.karenai.click/swechallenge/list
-STOCK_API_KEY=your_api_key_here
-ALLOWED_ORIGINS=http://localhost:5173
+DATABASE_URL=postgresql://<user>:<password>@<host>:26257/stocks?sslmode=disable
+ALLOWED_ORIGINS=*
 ```
 
 4. Run migrations:
@@ -59,21 +58,36 @@ backend/
 └── tests/            # Test files
 ```
 
-## 🔌 API Endpoints
+## �️ Database Schema
 
-### Health Check
-- `GET /health` - Health check endpoint
+The service persists analyst actions and price targets. Current schema (CockroachDB/PostgreSQL compatible):
 
-### Stocks
-- `GET /api/stocks` - Get all stocks (with pagination)
-  - Query params: `limit` (default: 50), `offset` (default: 0)
-- `GET /api/stocks/:id` - Get stock by ID
-- `GET /api/stocks/search?q=query` - Search stocks by symbol or name
-- `POST /api/sync` - Sync stocks from external API (async)
+```sql
+CREATE TABLE IF NOT EXISTS stocks (
+    id VARCHAR(255) PRIMARY KEY,
+    ticker VARCHAR(50) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    target_from VARCHAR(50),
+    target_to VARCHAR(50),
+    action VARCHAR(100),
+    brokerage VARCHAR(255),
+    rating_from VARCHAR(50),
+    rating_to VARCHAR(50),
+    time TIMESTAMP NOT NULL,
+    last_updated TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(ticker, time)
+);
 
-### Recommendations
-- `GET /api/recommendations` - Get recommended stocks
-  - Query params: `limit` (default: 10)
+CREATE INDEX IF NOT EXISTS idx_stocks_ticker ON stocks(ticker);
+CREATE INDEX IF NOT EXISTS idx_stocks_time ON stocks(time);
+CREATE INDEX IF NOT EXISTS idx_stocks_last_updated ON stocks(last_updated);
+```
+
+Notes:
+- `id` is a deterministic hash of `ticker+time` to avoid duplicates of the same event
+- `UNIQUE(ticker, time)` guarantees idempotent syncs
+- Indexes support search by ticker and time ordering
 
 ## 🧪 Testing
 
@@ -107,12 +121,12 @@ make fmt          # Format code
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Server port | `8080` |
+| `PORT` | Server port | `3000` |
 | `ENV` | Environment (development/production) | `development` |
-| `DATABASE_URL` | PostgreSQL connection string | - |
-| `STOCK_API_URL` | External stock API URL | - |
-| `STOCK_API_KEY` | API key for authentication | - |
+| `DATABASE_URL` | CockroachDB/PostgreSQL connection string | – |
 | `ALLOWED_ORIGINS` | CORS allowed origins | `*` |
+
+Security: credentials and any provider keys are configured locally via environment variables but are intentionally not documented here. Do not commit secrets.
 
 ## 🏗️ Architecture
 
@@ -122,6 +136,8 @@ The backend follows a clean architecture pattern:
 2. **Service Layer** (`internal/services`): Business logic
 3. **Repository Layer** (`internal/repository`): Database operations
 4. **Models** (`internal/models`): Data structures
+
+Recommendation logic lives in `internal/services/recommendation_service.go` and scores signals from analyst actions, ratings, and target price changes. The sync page limit is user-configurable from the UI; the backend enforces safe defaults.
 
 ## 📦 Dependencies
 

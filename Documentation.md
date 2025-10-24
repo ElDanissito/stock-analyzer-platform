@@ -22,27 +22,16 @@ Your task is to design and implement a system that retrieves stock information f
 
 ---
 
-## 🔌 API Documentation
+## � Data Model Overview
 
-### Endpoint
+The platform ingests analyst actions and price targets for tickers. Core fields:
 
-```
-GET https://api.karenai.click/swechallenge/list
-```
-
-### Query Parameters
-
-| Parameter | Description |
-|-----------|-------------|
-| `next_page` | The key to start the next page |
-
-### Authentication
-
-Include API key in the `Authorization` header:
-
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdHRlbXB0cyI6MjQ3LCJlbWFpbCI6ImRhbmkucjM0M0BnbWFpbC5jb20iLCJleHAiOjE3NjAyNTA5OTEsImlkIjoiIiwicGFzc3dvcmQiOiJ1c2VybmFtZS8qKi8gRlJPTS8qKi8gdXNlcnMgLS0ifQ.Zo-JdRJJMJO7kCaLvgDW2hN05_gVKc5_9zWLuIR1T0o
-```
+- Ticker, Company
+- Brokerage (free text)
+- Action (e.g., raised, upgraded, reiterated, initiated)
+- Rating From / Rating To (e.g., Sell, Hold/Neutral, Buy/Strong Buy)
+- Target From / Target To (string amounts as provided by the source)
+- Time (event timestamp)
 
 ---
 
@@ -52,7 +41,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdHRlbXB0cyI6MjQ3L
 
 To begin, you will need to connect to the API that provides the stock information. This will involve:
 
-- Making HTTP requests to the API endpoints to retrieve the necessary data
+- Implementing a pull-based data ingestion from a provider (credentials managed via local environment variables)
 - Handling errors appropriately
 - Ensuring that the data is properly formatted for use in the UI
 - Storing the retrieved data in CockroachDB
@@ -88,4 +77,10 @@ We highly encourage you to write unit tests for your code. This will ensure the 
 
 ## 🚀 Getting Started
 
-_To be added: Setup and installation instructions_
+See the project READMEs for setup flow. High level:
+- Start database services (CockroachDB)
+- Initialize the backend schema and run the backend service
+- Start the frontend
+- Use the UI to trigger data sync. You can choose how many pages to load (default 20; max 100). No provider endpoints or keys are stored in this repository.
+
+Security note: never commit endpoints or API keys. Configure any credentials locally via environment variables and .env files that you keep outside of version control.
